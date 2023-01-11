@@ -7,14 +7,13 @@ import com.thehutgroup.accelerator.connectn.player.InvalidMoveException;
 import com.thg.accelerator23.connectn.ai.fermion.board.BoardAnalyser;
 import com.thg.accelerator23.connectn.ai.fermion.board.GameState;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Random;
 
 public class MCTS {
-    private ArrayList<Integer> moveCounter = new ArrayList<>();
-    private ArrayList<Integer> winCounter = new ArrayList<>();
+//    private ArrayList<Integer> moveCounter = new ArrayList<>();
+//    private ArrayList<Integer> winCounter = new ArrayList<>();
     Board board;
 
     public MCTS(Board board) {
@@ -32,10 +31,11 @@ public class MCTS {
 //        return bestNode;
 //    }
 //
-    public Node selectHighestUTCNode(Node parentNode) {
+    public Node selectHighestUCTNode(Node parentNode) {
         Node node = parentNode;
         while (node.getChildren().size() != 0) {
-            node = Collections.max(node.getChildren(), Comparator.comparing(c -> c.getUTCValue(parentNode)));
+            node = UCT.highestChildUCTNode(node);
+            System.out.println(node.getMove());
         }
         return node;
     }
@@ -45,8 +45,8 @@ public class MCTS {
 //    }
 
     public int actualPlay(Counter counter) {
-        Node rootNode = new Node(counter);
-        Tree tree = new Tree(rootNode);
+        Tree tree = new Tree();
+        Node rootNode = tree.getRoot();
 
         rootNode.getState().setBoard(this.board);
         rootNode.getState().setRootCounter(counter);
@@ -56,9 +56,10 @@ public class MCTS {
         long currentTime = System.currentTimeMillis();
 
         while (System.currentTimeMillis()-currentTime < 8500) {
-            Node promisingNode = selectHighestUTCNode(rootNode);
+            Node promisingNode = selectHighestUCTNode(rootNode);
+            System.out.println(promisingNode.getChildren().size());
             
-            if (!analyser.calculateGameState(promisingNode.getState().getBoard()).isEnd()) {
+            if (!analyser.calculateGameState(promisingNode.getState().getBoard()).isEnd()) { //if not terminal state
                 promisingNode.generateChildrenNodes();
             }
 //            else {
@@ -67,15 +68,22 @@ public class MCTS {
 
             Node nodeToExplore = randomChildNode(promisingNode);
 
-            Counter results = simulateMoves(nodeToExplore,rootNode.getState().getCounter());
+            Counter results = simulateMoves(nodeToExplore);
 
             backpropagation(nodeToExplore,results);
 
         }
 
+        int sum = 0;
+
         for (Node child : rootNode.getChildren()) {
-            System.out.println(child.getMove() +" "+ child.getState().getNodeVisits() +" "+ child.getState().getNodeWins());
+            System.out.println("Column:"+ child.getMove() +", "+ "Visits:"+ child.getState().getNodeVisits() +", "+ "Wins:"+ child.getState().getNodeWins());
+            sum += child.getState().getNodeVisits();
+//            System.out.println("UCT Score: "+ UT.getUCTValue(rootNode));
         }
+
+        System.out.println("Total Simulations: " + rootNode.getState().getNodeVisits());
+        System.out.println("Total Sim: "+ sum);
 
         Node winnerNode = rootNode.childMostVisits();
 
@@ -84,7 +92,7 @@ public class MCTS {
     }
 
 
-    private Counter simulateMoves(Node nodeToExplore, Counter rootCounter) {
+    public Counter simulateMoves(Node nodeToExplore) {
         BoardAnalyser boardChecker =  new BoardAnalyser(new GameConfig(10,8,4));
         GameState gameState = boardChecker.calculateGameState(nodeToExplore.getState().getBoard());
 
@@ -101,7 +109,11 @@ public class MCTS {
 //            return  nodeToExplore.getState().getCounter();
 //        }
 
-        while(gameState.isEnd() == false){
+        if (gameState.isEnd()) {
+            return interState.getCounter();
+        }
+
+        while(!gameState.isEnd()){
             try {
                 interState.invertCounter();
                 int move = interNode.playRandomMove(interState.getBoard());
@@ -116,10 +128,10 @@ public class MCTS {
             }
         }
 //        System.out.println(gameState.getWinner());
-        moveCounter.add(nodeToExplore.getMove());
-        if(gameState.getWinner() == nodeToExplore.getState().getCounter()){
-            winCounter.add(nodeToExplore.getMove());
-        }
+//        moveCounter.add(nodeToExplore.getMove());
+//        if(gameState.getWinner() == nodeToExplore.getState().getCounter()){
+//            winCounter.add(nodeToExplore.getMove());
+//        }
 //        System.out.println(moveCounter.contains(nodeToExplore.getMove())+"win "+winCounter.contains(nodeToExplore.getMove()));
 
 
@@ -152,16 +164,18 @@ public class MCTS {
         Node upNode = endNode;
         while (upNode != null) {
             upNode.getState().addVisit();
-            if(upNode.getState().getCounter() == resultCounter){
+            if(upNode.getState().getCounter() == resultCounter) {
                 upNode.getState().addWin();
-            }else {
-
-                upNode.getState().subWin();
+//            }else {
+//
+//                upNode.getState().subWin();
+//            }
             }
             upNode = upNode.getParent();
 
         }
     }
+
 }
 
 

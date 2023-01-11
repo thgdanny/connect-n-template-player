@@ -14,21 +14,23 @@ public class Node {
     private int move;
     private final List<Node> children = new ArrayList<>();
 
-    public Node(Counter counter){
+    public Node(Counter counter) {
         this.state = new State(counter);
     }
-public Node(){
-        this.state= new State(Counter.O);
-        this.state.setBoard(new Board(new GameConfig(10,8,4)));
-        this.state.setBoard(new Board(new GameConfig(10,8,4)));
-}
-    public Node(Node tempNode){
+
+    public Node() {
+        this.state = new State(Counter.O);
+        this.state.setBoard(new Board(new GameConfig(10, 8, 4)));
+        this.state.setBoard(new Board(new GameConfig(10, 8, 4)));
+    }
+
+    public Node(Node tempNode) {
         this.state = tempNode.getState();
         this.parent = tempNode.getParent();
         this.move = tempNode.getMove();
     }
 
-    public Node(Node parent, int move,Counter counter){
+    public Node(Node parent, int move, Counter counter) {
         this.state = new State(counter);
         this.state.setBoard(parent.state.getBoard());
         this.parent = parent;
@@ -47,13 +49,17 @@ public Node(){
         return children;
     }
 
-    public Node getParent() { return this.parent; };
+    public Node getParent() {
+        return this.parent;
+    }
+
+    ;
 
     public Node childMostVisits() {
         Node mostNode = new Node();
         //Node mostNode = this.getChildren().get(0);
-        for(Node node : this.getChildren()) {
-            if(node.getState().getNodeVisits() > mostNode.getState().getNodeVisits()) {
+        for (Node node : this.getChildren()) {
+            if (node.getState().getNodeVisits() > mostNode.getState().getNodeVisits()) {
                 mostNode = node;
             }
         }
@@ -64,9 +70,9 @@ public Node(){
 //        return Collections.max(this.getChildren(), Comparator.comparing(c-> c.getState().getNodeVisits()));
 //    }
 
-    public Node averageChildWins() {
-        return Collections.max(this.getChildren(), Comparator.comparing(c-> c.getState().getNodeWins()/c.getState().getNodeVisits()));
-    }
+//    public Node averageChildWins() {
+//        return Collections.max(this.getChildren(), Comparator.comparing(c-> c.getState().getNodeWins()/c.getState().getNodeVisits()));
+//    }
 
 //    public void addChild(List<Node> children){
 //     for (Node child : children) {
@@ -77,40 +83,41 @@ public Node(){
 //        children.add(child.getMove(),child);
 //    }
 
-    public void addChild(Node node){
+    public void addChild(Node node) {
         Node interNode = node;
         children.add(interNode);
     }
 
 
-    public void generateChildrenNodes(){
+    public void generateChildrenNodes() {
         for (int i = 0; i < 10; i++) {
             addChild(new Node(this, i, this.getState().getCounterOpposite()));
+            System.out.println("children");
         }
     }
 
 
-    public double getUTCValue(Node rootNode) {
-        if(this.state.getNodeVisits()==0) {
-            return Integer.MAX_VALUE;
-        } else {
-            return ((double) this.state.getNodeWins()/(double) this.state.getNodeVisits())+1.41*Math.sqrt(Math.log(rootNode.state.getNodeVisits())/(double) this.state.getNodeVisits());
-        }
-    }
+//    public double getUCTValue(Node rootNode) {
+//        if (this.state.getNodeVisits() == 0) {
+//            return Integer.MAX_VALUE;
+//        } else {
+//            return ((double) this.state.getNodeWins() / (double) this.state.getNodeVisits()) + 1.41 * Math.sqrt(Math.log(rootNode.state.getNodeVisits()) / (double) this.state.getNodeVisits());
+//        }
+//    }
 
     public int playRandomMove(Board board) {
 
         LocalBoardAnalyser lba = new LocalBoardAnalyser(board);
         boolean fullColumns[] = lba.fullColumns();
         Random r = new Random();
-        int random = -1;
+//        int random = -1;
         // infinite loop if no available moves
         // might be a bad idea using while true
         ArrayList<Integer> possible = new ArrayList<>(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9));
         boolean hasFound = false;
-        while(!hasFound) {
+        while (!hasFound) {
 //            System.out.println("In play move");
-            random = (r.nextInt(10));
+            int random = (r.nextInt(10));
 //            if(possible.contains(random)){
 //                possible.remove(random);
 //            }
@@ -125,15 +132,11 @@ public Node(){
 //            }
 //            System.out.println("Random "+ random);
 //            System.out.println("____________________");
-
-            if(fullColumns[random] == false)
-                hasFound = true;
-
+            if (!fullColumns[random])
+                return random;
         }
-        return random;
+        return 0;
     }
 
-    public void playSequencedMove(){ //Used to create the 10 children nodes
 
     }
-}

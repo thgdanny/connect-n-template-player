@@ -1,4 +1,4 @@
-package com.thg.accelerator21.connectn.ai.name;
+package com.thg.accelerator23.connectn.ai.fermion.board;
 
 import com.thehutgroup.accelerator.connectn.player.Board;
 import com.thehutgroup.accelerator.connectn.player.Counter;

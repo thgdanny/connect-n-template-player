@@ -20,7 +20,6 @@ class LocalBoardAnalyserTest {
 
     @Test
     public void checkForFullColumn() {
-
         try {
             for (int i = 0; i < 8; i++) {
                 board = new Board(board,3, Counter.O);
@@ -39,7 +38,6 @@ class LocalBoardAnalyserTest {
 
     @Test
     public void fullColumns() {
-
         try {
             for (int i = 0; i < 8; i++) {
                 board = new Board(board,3, Counter.O);
@@ -47,10 +45,8 @@ class LocalBoardAnalyserTest {
         } catch (InvalidMoveException e) {
             throw new RuntimeException(e);
         }
-
         LocalBoardAnalyser localBoardAnalyser = new LocalBoardAnalyser(board);
         boolean[] full = localBoardAnalyser.fullColumns();
-
         Assertions.assertEquals(full.length, 10);
         Assertions.assertTrue(full[3]);
         Assertions.assertFalse(full[0]);

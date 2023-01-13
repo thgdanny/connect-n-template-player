@@ -1,7 +1,6 @@
-package com.thg.accelerator23.connectn.ai.fermion.algorithim;
+package com.thg.accelerator23.connectn.ai.fermion.algorithm;
 
 import com.thehutgroup.accelerator.connectn.player.Counter;
-import com.thg.accelerator23.connectn.ai.fermion.algorithim.Node;
 
 public class Tree {
     private Node root;
@@ -25,6 +24,6 @@ public class Tree {
     }
 
     public Node getRoot() {
-        return root;
+        return this.root;
     }
 }
